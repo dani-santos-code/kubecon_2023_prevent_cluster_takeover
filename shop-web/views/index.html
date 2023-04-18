@@ -1,0 +1,196 @@
+<html>
+  <head>
+    <title>Kuberwear Emporium</title>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <script>
+      function customImage() {
+        // just re-use the same location for our demo but make sure it doesn't cache
+        var filename = "images/rendered/customized.png?" + Date.now()
+        var req = new XMLHttpRequest();
+        req.open("POST", "/upload");
+        req.onload = function(event){
+          document.getElementById("productImg").src=filename;
+        };
+        var formData = new FormData(document.getElementById("imgForm"));
+        req.send(formData);
+      }
+    </script>
+
+    <style>
+      body {
+        background-color: rgb(255, 255, 255);
+        color: #000000;
+        font-family: Tahoma, sans-serif;
+        margin: 0px;
+        padding: 0;
+        gap: 0px;
+        font-size: 0;
+       }
+
+      .notification {
+        background-color: rgb(61, 61, 61);
+        color: rgb(255, 255, 255);
+        text-align: center;
+        vertical-align: middle;
+        font-size: 16px;
+        font-weight: normal;
+        line-height: 38px;
+        display: relative;
+      }
+
+      .header {
+        background-color: rgb(37, 37, 37);
+        color: rgb(255, 255, 255);
+        text-align: right;
+        vertical-align: middle;
+        font-size: 24px;
+        height: 50px;
+        line-height: 50px;
+        justify-content: right;
+        position: absolute;
+        width: 100%;
+        position: relative;
+        margin-top: -20px;
+      }
+
+      .header-icons {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 25px;
+        margin-right: 50px;
+        height: 40px;
+        padding: 0px;
+      }
+
+      .banner-box {
+        background-color: rgb(0, 0, 0);
+        color: rgb(255, 255, 255);
+        text-align: center;
+        vertical-align: middle;
+        position: relative;
+        width: 100%;
+      }
+
+      .banner-img {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .title {
+        display: block;
+        position: absolute;
+        top: 30px;
+        text-align: center;
+        width: 100%;
+        font-size: 48px;
+      }
+
+      .subtitle {
+        display: block;
+        position: absolute;
+        bottom: 30px;
+        text-align: center;
+        width: 100%;
+        font-size: 24px;
+      }
+
+      .product-box {
+        background-color: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        text-align: center;
+        vertical-align: middle;
+        font-size: 16px;
+        line-height: 24px;
+        position: relative;
+        width: 100%;
+        height: 600px;
+        margin: 30px;
+        display: flex;
+      }
+
+      .product-img {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 25px;
+        margin-right: 25px;
+        padding: 0px;
+        margin: 0px;
+      }
+
+      .product-desc {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: left;
+        margin-left: 25px;
+        margin-right: 25px;
+        padding: 0px;
+        width: 100%;
+      }
+
+      .button {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        padding: 0px;
+        width: 100%;
+        background-color: rgb(0, 0, 0);
+        color: rgb(255, 255, 255);
+        font-size: 18px;
+        line-height: 50px;
+        height: 50px;
+        width: 200px;
+        border-radius: 5px;
+        cursor: grab;
+      }
+
+      .footer {
+        background-color: rgb(61, 61, 61);
+        color: rgb(255, 255, 255);
+        text-align: left;
+        vertical-align: middle;
+        font-size: 16px;
+        font-weight: normal;
+        line-height: 38px;
+        display: inline-block;
+        width: 100%;
+        margin: 0px;
+        padding-left: 25px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="notification"><p>Free shipping on orders over $1,000,000.</p></div>
+    <div class="header">
+      <img class="header-icons" src="images/search.svg" />
+      <img class="header-icons" src="images/bag.svg" />
+    </div>
+    <div class="banner-box">
+      <img src="images/banner.jpg" class="banner-img" width="100%" />
+      <div class="title">Kuberwear Emporium</div>
+      <div class="subtitle">Custom attire for shipping in style.</div>
+    </div>
+    <div class="product-box">
+      <img id="productImg" src="images/rendered/customized.png" class="product-img"/>
+      <div class="product-desc">
+        <p style="font-weight: bold; font-size: 24px;">Short-Sleeve Shipping Shirt</p>
+        <p style="font-size: 18px;">Get in shipshape with this customizable short-sleeve shipping shirt. Pairs perfectly with our shorts, shoes, and shawls.</p>
+        <div>
+          <form id="imgForm" action="upload" method="POST" enctype="multipart/form-data">
+            <label for="file" class="button">Add image</label>
+            <input type="file" name="file" id="file" onchange="customImage()" hidden />
+          </form>
+          <div class="button">Buy Now</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <p>The Kuberwear Emporium is the most trusted shop for all of your shipping attire.</p>
+      <p>© 2023 Kuberwear Emporium</p>
+    </div>
+  </body>
+</html>

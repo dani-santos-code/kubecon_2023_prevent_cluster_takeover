@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-web
+  labels:
+    app: shop-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shop-web
+  template:
+    metadata:
+      labels:
+        app: shop-web
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/shop-web: runtime/default
+    spec:
+      containers:
+        - name: shop-web
+          image:  <YOUR-REGISTRY-REPO>/vuln-shop-demo-web:latest
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /app/uploads
+              name: uploads
+            - mountPath: /app/views/images/rendered
+              name: rendered
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            runAsNonRoot: true
+          resources: {}
+      volumes:
+        - name: uploads
+          emptyDir: {}
+        - name: rendered
+          emptyDir: {}
+      automountServiceAccountToken: false
+      hostNetwork: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+  strategy:
+    type: Recreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: shop-web
+  name: shop-web
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+      nodePort: 31080
+  selector:
+    app: shop-web
+

@@ -1,0 +1,4 @@
+.DS_Store
+shop-web/uploads
+shop-web/views/images/rendered
+*fixed*.yaml
